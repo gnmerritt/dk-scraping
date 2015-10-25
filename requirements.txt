@@ -1,0 +1,6 @@
+ipython
+flask
+sqlalchemy
+flask-sqlalchemy
+psycopg2
+requests
