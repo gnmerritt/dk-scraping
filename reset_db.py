@@ -1,2 +1,2 @@
-from racetrack import db
+from racetrack.app import db
 db.create_all()

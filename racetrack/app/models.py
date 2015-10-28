@@ -10,8 +10,8 @@ class Player(db.Model):
 
     first = db.Column(db.String(40))
     last = db.Column(db.String(40))
-    position = db.Column(db.String(10)) # e.g. 'WR'
-    sport = db.Column(db.String(10)) # e.g. 'NFL'
+    position = db.Column(db.String(10))  # e.g. 'WR'
+    sport = db.Column(db.String(10))  # e.g. 'NFL'
 
     def __repr__(self):
         return "Player(id={id}, name={f} {l}, pos={p})" \
@@ -22,7 +22,7 @@ class ExternalPlayer(db.Model):
     __tablename__ = "external_players"
     player_id = db.Column(db.Integer, db.ForeignKey("players.id"), index=True)
     external_id = db.Column(db.String(40))
-    site = db.Column(db.String(5)) # e.g. 'DK'
+    site = db.Column(db.String(5))  # e.g. 'DK'
 
     primary_key = db.PrimaryKeyConstraint(player_id, site)
 
