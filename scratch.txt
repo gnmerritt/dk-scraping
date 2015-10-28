@@ -1,2 +1,9 @@
-postgres -D /usr/local/var/postgres
+postgres -D /usr/local/var/postgres # start postgres 
+
+on Hot Route (321) 
+maxdalury has 47 entries. (of 2200 total)
+about 75% of them ranked in top 50%
+about 45% of them ranked in top 20%
+
+
 
