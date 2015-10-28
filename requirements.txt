@@ -1,3 +1,5 @@
+-e git+https://github.com/gnmerritt/slacker_log_handler.git#egg=slacker-log-handler
+
 ipython
 flask
 sqlalchemy
