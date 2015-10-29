@@ -6,3 +6,4 @@ sqlalchemy
 flask-sqlalchemy
 psycopg2
 requests
+nose
