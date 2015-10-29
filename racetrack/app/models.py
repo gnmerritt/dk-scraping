@@ -39,6 +39,8 @@ class Lineup(db.Model):
     id = db.Column(db.Integer, primary_key=True) # eg 14
     created = db.Column(db.DateTime)
 
+    entryname = db.Column(db.String(100)) # eg jockeyjz; associated with either of our DK/FD/.. profiles
+
     team = db.Column(db.String(100)) # eg 'Steelers'
     sport = db.Column(db.String(10)) # eg 'NFL'
 
@@ -47,15 +49,20 @@ class Lineup(db.Model):
             .format(id=self.id, t=self.team, s=self.sport)
 
     
-    # Dictionary for EXTERNAL lineups # eg => [13,183801480,maxdalury (39/47),0,239.42,QB Andrew Luck RB Lamar Miller RB Todd Gurley WR Larry Fitzgerald WR Julio Jones WR T.Y. Hilton TE Crockett Gillmore]
-    class ExternalLineup(db.Model):
-        __tablename__ = "external_lineups"
-        
-        # site # eg 'DK'
-        # entryname # eg 'maxdalury' => ie > real_slim_shady = 'maxdalury (39/47)'.split(' ').first
-        # relative_rank # 13/2200 => .005905909090
-        # contest # eg 12121321
-        # 
+# Dictionary for EXTERNAL lineups # eg => [13,183801480,maxdalury (39/47),0,239.42,QB Andrew Luck RB Lamar Miller RB Todd Gurley WR Larry Fitzgerald WR Julio Jones WR T.Y. Hilton TE Crockett Gillmore]
+class ExternalLineup(db.Model):  # these are all historical
+    __tablename__ = "external_lineups"
+
+    lineup_id = db.Column(db.Integer, db.ForeignKey("lineups.id"), index=True) # Import a lot of other people's lineups? OK with me. 
+    external_id = db.Column(db.Integer) # ['EntryId'] column from historical contest standings
+    site = db.Column(db.String(5)) 
+    entryname = db.Column(db.String(140)) # eg 'maxdalury'
+    
+    team = db.Column(db.String(100))
+    sport = db.Column(db.String(5))
+
+    rel_rank = db.Column(db.Float) # eg .0294859023 == top 3%
+    contest = db.Column(db.Integer) # contest id handed down from DK Api
 
 
 # Join players and lineups. 
@@ -64,7 +71,7 @@ class PlayerLineup(db.Model): # actually a join... (vs Model?)
     __tablename__ = "playerlineups"
 
     player_id = db.Column(db.Integer, db.ForeignKey("players.id"), index=True)
-    line_id = db.Column(db.Integer, db.ForeignKey("lineups.id"), index=True) # for internal or external lineups
+    lineup_id = db.Column(db.Integer, db.ForeignKey("lineups.id"), index=True) # for internal or external lineups
 
     player_position = db.Column(db.String(40)) # in case player pos changes (Randy Moss plays WR and then TE or whatever). not indexed on.
         # nb QB Tom Brady RB Lamar Miller RB Todd Gurley WR Nate Washington WR Julio Jones WR Mike Evans TE Ladarius Green FLEX Rob 

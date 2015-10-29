@@ -7,3 +7,16 @@ about 45% of them ranked in top 20%
 
 
 
+strategies:
+	copycat:
+		copy: 
+			user: maxdalury
+				.pattern: "Get all maxdalury lineups from this season. 
+									 Weight each player based on relative occurence (%). 
+									 	Yields arbitrary value for player.
+									 Given 50,000$ budget, find 200 relmax av-satisficing series of players into lineups."
+			winner: 
+
+	cowboy: 
+
+
