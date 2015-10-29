@@ -13,9 +13,16 @@ class Player(db.Model):
     position = db.Column(db.String(10))  # e.g. 'WR'
     sport = db.Column(db.String(10))  # e.g. 'NFL'
 
+    def __init__(self, first, last, position, sport):
+        self.first = first
+        self.last = last
+        self.position = position
+        self.sport = sport
+        self.created = datetime.datetime.utcnow()
+
     def __repr__(self):
         return "Player(id={id}, name={f} {l}, pos={p})" \
-            .format(id=self.id, f=self.first, l=self.last, p=self.pos)
+            .format(id=self.id, f=self.first, l=self.last, p=self.position)
 
 
 class ExternalPlayer(db.Model):
@@ -25,6 +32,11 @@ class ExternalPlayer(db.Model):
     site = db.Column(db.String(5))  # e.g. 'DK'
 
     primary_key = db.PrimaryKeyConstraint(player_id, site)
+
+    def __init__(self, player_id, external_id, site):
+        self.player_id = player_id
+        self.external_id = external_id
+        self.site = site
 
     def __repr__(self):
         return "ExtPlayer(id={id}, ext_id={eid}, site={s})" \

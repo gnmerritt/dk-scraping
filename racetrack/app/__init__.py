@@ -17,7 +17,7 @@ if not app.debug:
         app.config['SLACK_CHANNEL'],
         username=app.config['SLACK_USERNAME']
     )
-    handler.setLevel(logging.ERROR)
+    handler.setLevel(logging.INFO)
     app.logger.addHandler(handler)
 
 from . import models
