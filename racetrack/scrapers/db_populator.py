@@ -26,6 +26,7 @@ class DbPopulator(object):
         for p in self.db_players:
             data = self.player_to_externals[p]
             self.db.session.add(self.ext_player(p, data))
+        self.db.session.commit()
 
     def __db_player(self, player):
         return Player(**{
