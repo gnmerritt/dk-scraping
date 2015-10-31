@@ -1,7 +1,7 @@
 import json
-import requests
 
 from racetrack.scrapers.db_populator import PlayerExistsCheck
+from racetrack.scrapers.client import RequestWrapper
 
 
 class DKPlayerGroupFetcher(object):
@@ -13,7 +13,7 @@ class DKPlayerGroupFetcher(object):
         self.checker = checker
 
     def data(self):
-        r = requests.get(self.url)
+        r = RequestWrapper().get(self.url)
         if r and r.text:
             return r.text
         raise ValueError("No data found for {}".format(self.url))
