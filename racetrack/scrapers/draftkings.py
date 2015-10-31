@@ -1,13 +1,16 @@
 import json
 import requests
 
+from racetrack.scrapers.db_populator import PlayerExistsCheck
+
 
 class DKPlayerGroupFetcher(object):
     URL = "https://www.draftkings.com" + \
         "/lineup/getavailableplayers?draftGroupId={dgid}"
 
-    def __init__(self, draft_group_id):
+    def __init__(self, draft_group_id, checker=PlayerExistsCheck):
         self.url = self.URL.format(dgid=draft_group_id)
+        self.checker = checker
 
     def data(self):
         r = requests.get(self.url)
@@ -24,8 +27,11 @@ class DKPlayerGroupFetcher(object):
         return players
 
     def parse_players(self, raw_players):
-        return [DKPlayerAdder(p).generalize()
-                for p in raw_players]
+        general_players = [DKPlayerAdder(p).generalize()
+                           for p in raw_players]
+        new_players = [p for p in general_players
+                       if not self.checker(p).exists()]
+        return new_players
 
 
 class DKPlayerAdder(object):

@@ -39,3 +39,15 @@ class DbPopulator(object):
                 if k not in self.KEYS}
         info['player_id'] = db_player.id
         return ExternalPlayer(**info)
+
+
+class PlayerExistsCheck(object):
+    """"Checks the DB to see if (external_id, site) exists"""
+    def __init__(self, general_player):
+        self.player = general_player
+
+    def exists(self):
+        return ExternalPlayer.query.filter_by(
+            external_id=str(self.player['external_id']),
+            site=self.player['site']
+        ).count() > 0

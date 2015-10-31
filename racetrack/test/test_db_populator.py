@@ -2,8 +2,11 @@ import random
 import string
 import unittest
 
+from racetrack.app import db
 import racetrack.scrapers.db_populator as pop
 
+from rules import AppTestCase
+from test_models import PlayerTest
 import mocks as m
 
 
@@ -47,3 +50,17 @@ class DbPopulatorTest(unittest.TestCase):
             'site': 'DK',
             'external_id': randomword(15)
         } for i in range(num)]
+
+
+class PlayerExistsCheckTest(AppTestCase):
+    def test_exists_doesnt(self):
+        player = {'external_id': 1, 'site': 'DK'}
+        check = pop.PlayerExistsCheck(player)
+        self.assertFalse(check.exists())
+
+    def test_exists_ext_id_match(self):
+        pt = PlayerTest()
+        pt.test_player_ext_player()
+        player = {'external_id': "foo", 'site': 'DK'}
+        check = pop.PlayerExistsCheck(player)
+        self.assertTrue(check.exists())

@@ -16,3 +16,11 @@ class MockSession(object):
 class MockDb(object):
     def __init__(self):
         self.session = MockSession()
+
+
+class MockPlayerChecker(object):
+    def __init__(self, player):
+        pass
+
+    def exists(self):
+        return False

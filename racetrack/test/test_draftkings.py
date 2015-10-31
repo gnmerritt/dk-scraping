@@ -2,6 +2,8 @@ import unittest
 
 import racetrack.scrapers.draftkings as dk
 
+import mocks as m
+
 
 class DKPlayerFetcherTest(unittest.TestCase):
     FILE = "/Users/nathan/sources/horses/data/dk_draft_group_7462.json"
@@ -25,7 +27,7 @@ class DKPlayerFetcherTest(unittest.TestCase):
             self.fail("Bad request didn't explode")
 
     def test_parse_players(self):
-        players = dk.DKPlayerGroupFetcher(10)
+        players = dk.DKPlayerGroupFetcher(10, checker=m.MockPlayerChecker)
         players.data = self.data
         player_data = players.load_data(limit=10)
         self.assertEqual(10, len(player_data))
