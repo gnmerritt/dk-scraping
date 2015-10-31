@@ -32,6 +32,7 @@ class ExternalPlayer(db.Model):
     site = db.Column(db.String(5))  # e.g. 'DK'
 
     primary_key = db.PrimaryKeyConstraint(player_id, site)
+    ext_index = db.Index(external_id, site, unique=True)
 
     def __init__(self, player_id, external_id, site):
         self.player_id = player_id

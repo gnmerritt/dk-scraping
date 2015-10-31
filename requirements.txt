@@ -7,3 +7,5 @@ flask-sqlalchemy
 psycopg2
 requests
 nose
+nosetests-json-extended
+Flask-Testing
