@@ -58,3 +58,36 @@ class DKPlayerAdderTest(unittest.TestCase):
         self.assertEqual("QB", general["position"])
         self.assertEqual("DK", general["site"])
         self.assertEqual("NFL", general["sport"])
+
+
+class DKMatchupExtractorTest(unittest.TestCase):
+    RAW = {
+        "IsDisabledFromDrafting": False,
+        "atabbr": "Atl",  # away team abbrv
+        "atid": 323,      # away team id
+        "htabbr": "Ten",    # home team abbrv.
+        "htid": 336,        # home team id
+        "pid": 456614,     # player id, used in lineups
+        "pn": "WR",        # fantasy position
+        "pp": 0,         # current score?
+        "ppg": "25.3",    # PPG projection
+        "s": 9100,       # salary": $9,100
+        "tid": 323,    # player's team id
+    }
+
+    def test_disabled(self):
+        logic = dk.DKMatchupExtractor({
+            "IsDisabledFromDrafting": True
+        }, "2015-09-02")
+        self.assertFalse(logic.generalize())
+
+    def test_generalize(self):
+        logic = dk.DKMatchupExtractor(self.RAW, "2015-09-02")
+        gen = logic.generalize()
+        self.assertEqual(456614, gen['external_id'])
+        self.assertEqual('DK', gen['site'])
+        self.assertFalse(gen['home_game'])
+        self.assertEqual("Atl", gen['team'])
+        self.assertEqual("Ten", gen['opponent'])
+        self.assertEqual(9100, gen['salary'])
+        self.assertEqual("25.3", gen['projection'])

@@ -53,3 +53,37 @@ class DKPlayerAdder(object):
         g["site"] = self.DK_SITE_ID
         g["sport"] = "NFL"
         return g
+
+
+class DKMatchupExtractor(object):
+    MAP = {
+        "s": "salary",
+        "ppg": "projection",
+        "pid": "external_id",
+    }
+
+    def __init__(self, raw, week):
+        self.raw = raw
+        self.week = week
+
+    def generalize(self):
+        """Returns a generalized matchup object"""
+        if self.raw.get('IsDisabledFromDrafting', False):
+            return None
+        g = {m: self.raw[k] for k, m in self.MAP.items()}
+        g['site'] = 'DK'
+        self.add_teams(g)
+        return g
+
+    def add_teams(self, general):
+        """Calculates 'team', 'opponent' and 'home_game'"""
+        home = self.raw['htabbr']
+        away = self.raw['atabbr']
+        is_home_game = self.raw['htid'] == self.raw['tid']
+        general['home_game'] = is_home_game
+        if is_home_game:
+            general['team'] = home
+            general['opponent'] = away
+        else:
+            general['opponent'] = home
+            general['team'] = away
