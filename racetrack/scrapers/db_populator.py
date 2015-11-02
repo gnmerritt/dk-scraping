@@ -1,4 +1,4 @@
-from racetrack.app.models import Player, ExternalPlayer
+from racetrack.app.models import Player, ExternalPlayer, Matchup, Projection
 
 
 class DbPopulator(object):
@@ -51,3 +51,64 @@ class PlayerExistsCheck(object):
             external_id=str(self.player['external_id']),
             site=self.player['site']
         ).count() > 0
+
+
+class PlayerFinder(object):
+    def __init__(self, db, raw_players, site, id_field):
+        self.db = db
+        self.players = raw_players
+        self.site = site
+        self.id_field = id_field
+
+    def map(self):
+        mapped = {}
+        for p in self.players:
+            db_player = self.db.session.query(Player.id) \
+                .filter(
+                    ExternalPlayer.external_id == str(p[self.id_field]),
+                    ExternalPlayer.site == self.site
+                ).outerjoin(ExternalPlayer) \
+                .first()
+            if db_player is not None:
+                mapped[db_player] = p
+        return mapped
+
+
+class MatchupDbPopulator(object):
+    """Adds matchups and site projections for players"""
+    MATCHUP_KEYS = ['player_id', 'week', 'opponent', 'team', 'home_game']
+    PROJECTION_KEYS = ['player_id', 'matchup_id', 'site', 'salary', 'points']
+
+    def __init__(self, db, players_to_gen_data):
+        self.db = db
+        self.player_id_to_data = players_to_gen_data
+        self.matchups = []
+
+    def commit_matchups(self):
+        for id, data in self.player_id_to_data.items():
+            data['player_id'] = id
+            matchup = self.for_matchup(data)
+            row = Matchup(**matchup)
+            self.db.session.add(row)
+            self.db.session.flush()
+            data['matchup_id'] = row.id
+        self.db.session.commit()
+
+    def for_matchup(self, data):
+        return {
+            k: v for k, v in data.items()
+            if k in self.MATCHUP_KEYS
+        }
+
+    def commit_projections(self):
+        for id, data in self.player_id_to_data.items():
+            projection = self.for_projection(data)
+            row = Projection(**projection)
+            self.db.session.add(row)
+        self.db.session.commit()
+
+    def for_projection(self, data):
+        return {
+            k: v for k, v in data.items()
+            if k in self.PROJECTION_KEYS
+        }

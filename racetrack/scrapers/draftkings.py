@@ -58,7 +58,7 @@ class DKPlayerAdder(object):
 class DKMatchupExtractor(object):
     MAP = {
         "s": "salary",
-        "ppg": "projection",
+        "ppg": "points",
         "pid": "external_id",
     }
 
@@ -72,6 +72,7 @@ class DKMatchupExtractor(object):
             return None
         g = {m: self.raw[k] for k, m in self.MAP.items()}
         g['site'] = 'DK'
+        g['week'] = self.week
         self.add_teams(g)
         return g
 

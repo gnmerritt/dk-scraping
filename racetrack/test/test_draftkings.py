@@ -90,4 +90,4 @@ class DKMatchupExtractorTest(unittest.TestCase):
         self.assertEqual("Atl", gen['team'])
         self.assertEqual("Ten", gen['opponent'])
         self.assertEqual(9100, gen['salary'])
-        self.assertEqual("25.3", gen['projection'])
+        self.assertEqual("25.3", gen['points'])

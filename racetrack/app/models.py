@@ -27,12 +27,12 @@ class Player(db.Model):
 
 class ExternalPlayer(db.Model):
     __tablename__ = "external_players"
+    __table_args__ = (db.Index('ext_site', 'external_id', 'site'), )
     player_id = db.Column(db.Integer, db.ForeignKey("players.id"), index=True)
-    external_id = db.Column(db.String(40))
+    external_id = db.Column(db.String(40), nullable=False)
     site = db.Column(db.String(5))  # e.g. 'DK'
 
     primary_key = db.PrimaryKeyConstraint(player_id, site)
-    ext_index = db.Index(external_id, site, unique=True)
 
     def __init__(self, player_id, external_id, site):
         self.player_id = player_id
@@ -42,6 +42,47 @@ class ExternalPlayer(db.Model):
     def __repr__(self):
         return "ExtPlayer(id={id}, ext_id={eid}, site={s})" \
             .format(id=self.player_id, eid=self.external_id, s=self.site)
+
+
+class Matchup(db.Model):
+    __tablename__ = "matchups"
+    __table_args__ = (db.Index('pid_week', 'player_id', 'week', unique=True), )
+    id = db.Column(db.Integer, primary_key=True)
+    player_id = db.Column(db.Integer, db.ForeignKey("players.id"), index=True)
+    week = db.Column(db.String(10))  # Sunday of the week e.g. '2015-09-02'
+    opponent = db.Column(db.String(5))
+    team = db.Column(db.String(5))
+    home_game = db.Column(db.Boolean)
+
+    def __init__(self, player_id, week, opponent, team, home_game):
+        vars(self).update((k, v) for k, v in vars().items()
+                          if k != 'self' and k not in vars(self))
+
+    def __repr__(self):
+        return "Matchup(pid={i}, {w}, {t} vs {o}, home={h})" \
+            .format(i=self.player_id, w=self.week, t=self.team,
+                    o=self.opponent, h=self.home_game)
+
+
+class Projection(db.Model):
+    __tablename__ = "projections"
+    player_id = db.Column(db.Integer, db.ForeignKey("players.id"))
+    matchup_id = db.Column(
+        db.Integer, db.ForeignKey("matchups.id"), index=True)
+    site = db.Column(db.String(5))
+    salary = db.Column(db.Integer)
+    points = db.Column(db.Float)
+
+    primary_key = db.PrimaryKeyConstraint(matchup_id, site)
+
+    def __init__(self, player_id, matchup_id, site, salary, points):
+        vars(self).update((k, v) for k, v in vars().items()
+                          if k != 'self' and k not in vars(self))
+
+    def __repr__(self):
+        return "Projection(pid={id}, site={s}, $={sal}, ppg={p})" \
+            .format(id=self.player_id, site=self.site, sal=self.salary,
+                    p=self.points)
 
 
 # Dictionary for lineups.

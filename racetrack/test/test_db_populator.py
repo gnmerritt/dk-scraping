@@ -3,6 +3,7 @@ import string
 import unittest
 
 from racetrack.app import db
+from racetrack.app.models import Player, ExternalPlayer
 import racetrack.scrapers.db_populator as pop
 
 from rules import AppTestCase
@@ -64,3 +65,53 @@ class PlayerExistsCheckTest(AppTestCase):
         player = {'external_id': "foo", 'site': 'DK'}
         check = pop.PlayerExistsCheck(player)
         self.assertTrue(check.exists())
+
+
+class PlayerFinderTest(AppTestCase):
+    def setUp(self):
+        super().setUp()
+        player = Player("F", "L", "QB", "NFL")
+        db.session.add(player)
+        db.session.flush()
+        ext = ExternalPlayer(player.id, "foo", "DK", )
+        db.session.add(ext)
+        db.session.commit()
+
+    def test_player_exists(self):
+        finder = pop.PlayerFinder(db, [{'ext_id': 'foo'}], 'DK', 'ext_id')
+        player = finder.map()
+        self.assertEqual(1, len(player))
+
+    def test_player_missing(self):
+        finder = pop.PlayerFinder(db, [{'ext_id': 1}], 'DK', 'ext_id')
+        player = finder.map()
+        self.assertFalse(player)
+
+
+class MatchupDbPopulatorTest(AppTestCase):
+    def fake_player_map(self, num):
+        return {
+            m.MockPlayer(num): {
+                'week': '2015-09-02',
+                'home_game': False,
+                'team': 'Ten',
+                'opponent': 'Atl',
+                'site': 'DK',
+                'salary': 1000,
+                'points': 15
+            } for i in range(num)
+        }
+
+    def test_matchups(self):
+        db = m.MockDb()
+        players = self.fake_player_map(10)
+        p = pop.MatchupDbPopulator(db, players)
+        p.commit_matchups()
+        self.assertEqual(10, len(db.session.added))
+
+        db.session.added = []
+
+        p.commit_projections()
+        self.assertEqual(10, len(db.session.added))
+        added = db.session.added[0]
+        self.assertTrue(added.matchup_id)

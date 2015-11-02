@@ -1,5 +1,6 @@
 class MockPlayer(object):
-    id = 1
+    def __init__(self, id=1):
+        self.id = id
 
 
 class MockSession(object):
@@ -11,6 +12,10 @@ class MockSession(object):
 
     def commit(self):
         pass
+
+    def flush(self):
+        for row in self.added:
+            row.id = 1
 
 
 class MockDb(object):
