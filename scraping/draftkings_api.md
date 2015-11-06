@@ -61,7 +61,7 @@
             "ContestStartTimeSuffix": " (Primetime)",
             "ContestStartTimeType": 0,
             "ContestTypeId": 21,
-            "DraftGroupId": 7508,  // pointer to the playe pricing information for this contest
+            "DraftGroupId": 7508,  // pointer to the player pricing information for this contest
             "GameCount": 2,        // # of NFL games
             "Games": null,
             "Sport": "NFL",

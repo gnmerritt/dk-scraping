@@ -9,3 +9,4 @@ requests
 nose
 nosetests-json-extended
 Flask-Testing
+python-dateutil

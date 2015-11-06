@@ -27,11 +27,11 @@ class AddPlayers(object):
 
 
 class AddMatchupsProjections(object):
-    def __init__(self, db, logger, raw_players):
+    def __init__(self, db, logger, week, raw_players):
         self.db = db
         self.logger = logger
         self.players = raw_players
-        self.week = "2015-11-08"  # TODO: still hard-coded
+        self.week = week
         self.find_players()
 
     def find_players(self):
@@ -58,7 +58,9 @@ if __name__ == "__main__":
     groups = contests.get_draft_groups()
     app.logger.info("Got {} draft groups from DK".format(len(groups)))
     for group in groups:
-        job = AddPlayers(db, app.logger, group)
+        id = group[0]
+        week = group[1]
+        job = AddPlayers(db, app.logger, id)
         all_players = job.run()
-        projections = AddMatchupsProjections(db, app.logger, all_players)
+        projections = AddMatchupsProjections(db, app.logger, week, all_players)
         projections.run()

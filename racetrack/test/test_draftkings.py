@@ -1,4 +1,5 @@
 import unittest
+import datetime
 
 import racetrack.scrapers.draftkings as dk
 
@@ -16,7 +17,10 @@ class DKContestFetcherTest(unittest.TestCase):
         contests = dk.DKContestFetcher()
         contests.data = self.data
         groups = contests.get_draft_groups()
-        self.assertEqual([7579, 7623, 7624, 7625, 7626, 7627], groups)
+
+        sunday = datetime.date(2015, 11, 8)
+        ids = [7579, 7623, 7624, 7625, 7626, 7627]
+        self.assertEqual([(id, sunday) for id in ids], groups)
 
 
 class DKPlayerFetcherTest(unittest.TestCase):

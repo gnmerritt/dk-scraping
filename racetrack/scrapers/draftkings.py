@@ -1,11 +1,13 @@
 import json
+import dateutil.parser
 
 from racetrack.scrapers.db_populator import PlayerExistsCheck
 from racetrack.scrapers.client import RequestWrapper
+from racetrack.lineups.week import NflWeekFinder
 
 
 class DKContestFetcher(object):
-    """Fetches all active DK contests, finds draft groups"""
+    """Fetches all active DK contests, finds draft groups and weeks"""
     URL = "https://www.draftkings.com/lobby/getcontests?sport=NFL"
 
     def __init__(self):
@@ -21,12 +23,18 @@ class DKContestFetcher(object):
         data = self.data()
         self.json_data = json.loads(data)
 
+    def get_id_wk(self, group):
+        draft_id = group['DraftGroupId']
+        ts_string = group['StartDateEst']
+        start_time = dateutil.parser.parse(ts_string).date()
+        week = NflWeekFinder(start_time)
+        return (draft_id, week.get_nfl_sunday())
+
     def get_draft_groups(self):
         if not self.json_data:
             self.load_data()
         draft_groups = self.json_data['DraftGroups']
-        group_ids = [g.get("DraftGroupId", None)
-                     for g in draft_groups]
+        group_ids = [self.get_id_wk(g) for g in draft_groups]
         return [id for id in group_ids if id is not None]
 
 
@@ -96,7 +104,7 @@ class DKMatchupExtractor(object):
 
     def __init__(self, raw, week):
         self.raw = raw
-        self.week = week
+        self.week = str(week)
 
     def generalize(self):
         """Returns a generalized matchup object"""
