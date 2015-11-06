@@ -88,9 +88,7 @@ class MatchupDbPopulator(object):
         for id, data in self.player_id_to_data.items():
             data['player_id'] = id
             matchup = self.for_matchup(data)
-            row = Matchup(**matchup)
-            self.db.session.add(row)
-            self.db.session.flush()
+            row = Matchup.get_or_create(matchup, self.db)
             data['matchup_id'] = row.id
         self.db.session.commit()
 

@@ -91,7 +91,7 @@ class PlayerFinderTest(AppTestCase):
 class MatchupDbPopulatorTest(AppTestCase):
     def fake_player_map(self, num):
         return {
-            m.MockPlayer(num): {
+            i + 1: {
                 'week': '2015-09-02',
                 'home_game': False,
                 'team': 'Ten',

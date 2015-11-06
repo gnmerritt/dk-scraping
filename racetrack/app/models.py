@@ -58,6 +58,20 @@ class Matchup(db.Model):
         vars(self).update((k, v) for k, v in vars().items()
                           if k != 'self' and k not in vars(self))
 
+    @classmethod
+    def get_or_create(self, data, use_db=None):
+        if use_db is None:
+            use_db = db
+        player_id = data.get("player_id", None)
+        existing = db.session.query(Matchup) \
+            .filter_by(player_id=player_id).first()
+        if existing is not None:
+            return existing
+        new = Matchup(**data)
+        use_db.session.add(new)
+        use_db.session.flush()
+        return new
+
     def __repr__(self):
         return "Matchup(pid={i}, {w}, {t} vs {o}, home={h})" \
             .format(i=self.player_id, w=self.week, t=self.team,

@@ -10,6 +10,7 @@ class AppTestCase(TestCase):
         return app
 
     def setUp(self):
+        self.db = db
         db.create_all()
 
     def tearDown(self):
