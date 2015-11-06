@@ -5,6 +5,20 @@ import racetrack.scrapers.draftkings as dk
 import mocks as m
 
 
+class DKContestFetcherTest(unittest.TestCase):
+    FILE = "/Users/nathan/sources/horses/data/dk_nfl_contests.json"
+
+    def data(self):
+        with open(self.FILE, "r") as myfile:
+            return myfile.read().replace('\n', '')
+
+    def test_parse_groups(self):
+        contests = dk.DKContestFetcher()
+        contests.data = self.data
+        groups = contests.get_draft_groups()
+        self.assertEqual([7579, 7623, 7624, 7625, 7626, 7627], groups)
+
+
 class DKPlayerFetcherTest(unittest.TestCase):
     FILE = "/Users/nathan/sources/horses/data/dk_draft_group_7462.json"
 

@@ -4,7 +4,35 @@ from racetrack.scrapers.db_populator import PlayerExistsCheck
 from racetrack.scrapers.client import RequestWrapper
 
 
+class DKContestFetcher(object):
+    """Fetches all active DK contests, finds draft groups"""
+    URL = "https://www.draftkings.com/lobby/getcontests?sport=NFL"
+
+    def __init__(self):
+        self.json_data = None
+
+    def data(self):
+        r = RequestWrapper().get(self.URL)
+        if r and r.text:
+            return r.text
+        raise ValueError("No data found for {}".format(self.URL))
+
+    def load_data(self):
+        data = self.data()
+        self.json_data = json.loads(data)
+
+    def get_draft_groups(self):
+        if not self.json_data:
+            self.load_data()
+        draft_groups = self.json_data['DraftGroups']
+        group_ids = [g.get("DraftGroupId", None)
+                     for g in draft_groups]
+        return [id for id in group_ids if id is not None]
+
+
 class DKPlayerGroupFetcher(object):
+    """Fetches all players in a DK draft group"""
+
     URL = "https://www.draftkings.com" + \
         "/lineup/getavailableplayers?draftGroupId={dgid}"
 
@@ -35,6 +63,8 @@ class DKPlayerGroupFetcher(object):
 
 
 class DKPlayerAdder(object):
+    """Pulls out general player information from a DK player object"""
+
     MAP = {
         "pid": "external_id",
         "fn": "first",
@@ -56,6 +86,8 @@ class DKPlayerAdder(object):
 
 
 class DKMatchupExtractor(object):
+    """Extracts a generalized matchup object given a DK player"""
+
     MAP = {
         "s": "salary",
         "ppg": "points",
