@@ -1,7 +1,7 @@
 from rules import AppTestCase
 
 from racetrack.app import db
-from racetrack.app.models import Player, ExternalPlayer, Matchup
+from racetrack.app.models import Player, ExternalPlayer, Matchup, Projection
 
 
 class PlayerTest(AppTestCase):
@@ -45,6 +45,32 @@ class MatchupTest(AppTestCase):
         again = Matchup.get_or_create(data)
         self.assertEqual(matchup, again)
 
-    def test_matchups_unique(self):
-        """Verifies that a player can only have one matchup per week"""
-        pass
+
+class ProjectionTest(AppTestCase):
+    def fake_data(self, player, id, site):
+        return {
+            "matchup_id": id,
+            "site": site,
+            "player_id": player.id,
+            "salary": 1000,
+            "points": 22.5
+        }
+
+    def test_create_or_replace(self):
+        tim = PlayerTest().add_player()
+        data = self.fake_data(tim, 1, "DK")
+        first = Projection.create_or_replace(data)
+        self.assertEqual(tim.id, first.player_id)
+        self.assertEqual(1000, first.salary)
+        self.db.session.add(first)
+        self.db.session.flush()
+
+        data['salary'] = 2500
+        second = Projection.create_or_replace(data)
+        self.assertEqual(tim.id, second.player_id)
+        self.assertEqual(first.site, second.site)
+        self.assertEqual(2500, second.salary)
+        self.db.session.add(second)
+        self.db.session.commit()
+
+        self.assertEqual(1, Projection.query.count())

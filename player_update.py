@@ -4,14 +4,15 @@ from racetrack.scrapers import db_populator
 
 
 class AddPlayers(object):
-    def __init__(self, db, logger):
+    def __init__(self, db, logger, group):
         self.db = db
         self.logger = logger
+        self.group = group
 
     def run(self):
-        self.logger.info("Scraping DK players and adding to DB")
-        # hard-coded for now
-        fetcher = dk.DKPlayerGroupFetcher("7594")
+        self.logger.info("Scraping DK players ({}) and adding to DB"
+                         .format(self.group))
+        fetcher = dk.DKPlayerGroupFetcher(self.group)
         raw_players = fetcher.load_data()
         self.logger.info(
             "Got {} players back from DK".format(len(raw_players)))
@@ -30,7 +31,7 @@ class AddMatchupsProjections(object):
         self.db = db
         self.logger = logger
         self.players = raw_players
-        self.week = "2015-09-09"
+        self.week = "2015-11-08"  # TODO: still hard-coded
         self.find_players()
 
     def find_players(self):
@@ -53,7 +54,11 @@ class AddMatchupsProjections(object):
 
 
 if __name__ == "__main__":
-    job = AddPlayers(db, app.logger)
-    all_players = job.run()
-    projections = AddMatchupsProjections(db, app.logger, all_players)
-    projections.run()
+    contests = dk.DKContestFetcher()
+    groups = contests.get_draft_groups()
+    app.logger.info("Got {} draft groups from DK".format(len(groups)))
+    for group in groups:
+        job = AddPlayers(db, app.logger, group)
+        all_players = job.run()
+        projections = AddMatchupsProjections(db, app.logger, all_players)
+        projections.run()

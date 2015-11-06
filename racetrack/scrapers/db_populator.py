@@ -101,7 +101,7 @@ class MatchupDbPopulator(object):
     def commit_projections(self):
         for id, data in self.player_id_to_data.items():
             projection = self.for_projection(data)
-            row = Projection(**projection)
+            row = Projection.create_or_replace(projection)
             self.db.session.add(row)
         self.db.session.commit()
 

@@ -3,7 +3,7 @@ import string
 import unittest
 
 from racetrack.app import db
-from racetrack.app.models import Player, ExternalPlayer
+from racetrack.app.models import Player, ExternalPlayer, Matchup, Projection
 import racetrack.scrapers.db_populator as pop
 
 from rules import AppTestCase
@@ -103,15 +103,10 @@ class MatchupDbPopulatorTest(AppTestCase):
         }
 
     def test_matchups(self):
-        db = m.MockDb()
         players = self.fake_player_map(10)
-        p = pop.MatchupDbPopulator(db, players)
+        p = pop.MatchupDbPopulator(self.db, players)
         p.commit_matchups()
-        self.assertEqual(10, len(db.session.added))
-
-        db.session.added = []
+        self.assertEqual(10, Matchup.query.count())
 
         p.commit_projections()
-        self.assertEqual(10, len(db.session.added))
-        added = db.session.added[0]
-        self.assertTrue(added.matchup_id)
+        self.assertEqual(10, Projection.query.count())

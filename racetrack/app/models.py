@@ -59,17 +59,15 @@ class Matchup(db.Model):
                           if k != 'self' and k not in vars(self))
 
     @classmethod
-    def get_or_create(self, data, use_db=None):
-        if use_db is None:
-            use_db = db
+    def get_or_create(self, data, db=db):
         player_id = data.get("player_id", None)
         existing = db.session.query(Matchup) \
             .filter_by(player_id=player_id).first()
         if existing is not None:
             return existing
         new = Matchup(**data)
-        use_db.session.add(new)
-        use_db.session.flush()
+        db.session.add(new)
+        db.session.flush()
         return new
 
     def __repr__(self):
@@ -92,6 +90,16 @@ class Projection(db.Model):
     def __init__(self, player_id, matchup_id, site, salary, points):
         vars(self).update((k, v) for k, v in vars().items()
                           if k != 'self' and k not in vars(self))
+
+    @classmethod
+    def create_or_replace(self, data):
+        existing = Projection.query.filter_by(
+            matchup_id=data.get('matchup_id', None),
+            site=data.get('site', None)
+        ).first()
+        if existing:
+            db.session.delete(existing)
+        return Projection(**data)
 
     def __repr__(self):
         return "Projection(pid={id}, site={s}, $={sal}, ppg={p})" \
